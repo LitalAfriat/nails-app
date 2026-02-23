@@ -1,163 +1,143 @@
+import React, { useState } from "react";
 
-import React, { useState } from 'react';
+import { router } from "expo-router";
 import {
   ActivityIndicator,
-  Alert,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
-} from 'react-native';
-
+} from "react-native";
 
 interface FormData {
-  email: string;
-  
+    email: string;
 }
 
-
 const NailsAuthScreen: React.FC = () => {
+    const [formData, setFormData] = useState<FormData>({
+        email: "",
+    });
+    const [errors, setErrors] = useState<any>({});
+    const [isLoading, setIsLoading] = useState(false);
 
-   const mode = 'signin';
+    const validateForm = (): boolean => {
+        const newErrors: any = {};
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-  const [formData, setFormData] = useState<FormData>({
-    email: '',
-  
-  });
-  const [errors, setErrors] = useState<any>({});
-  const [isLoading, setIsLoading] = useState(false);
+        if (!formData.email) {
+            newErrors.email = "Email is required";
+        } else if (!emailRegex.test(formData.email)) {
+            newErrors.email = "Invalid email";
+        }
 
-  const validateForm = (): boolean => {
-    const newErrors: any = {};
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
 
-    if (!formData.email) {
-      newErrors.email = 'Email is required';
-    } else if (!emailRegex.test(formData.email)) {
-      newErrors.email = 'Invalid email';
-    }
+    const handleSubmit = () => {
+        if (!validateForm()) return;
 
+        setIsLoading(true);
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+        setTimeout(() => {
+            setIsLoading(false);
+            router.push({
+                pathname: "/verification-code",
+                params: { email: formData.email },
+            });
+        }, 1500);
+    };
 
-  const handleSubmit = () => {
-    if (!validateForm()) return;
+    const handleChange = (name: keyof FormData, value: string) => {
+        setFormData((prev) => ({ ...prev, [name]: value }));
+        setErrors((prev: any) => ({ ...prev, [name]: undefined }));
+    };
 
-    setIsLoading(true);
+    return (
+        <ScrollView contentContainerStyle={styles.container}>
+            <View style={styles.card}>
+                <Text style={styles.title}>NailsPro</Text>
+                <Text style={styles.subtitle}>Your beauty, our passion</Text>
 
-    setTimeout(() => {
-      setIsLoading(false);
-      Alert.alert(
-        mode === 'signin' ? 'Signed In' : 'Account Created',
-        `Welcome ${formData.email}`
-      );
-    }, 1500);
-  };
+                <TextInput
+                    placeholder="Enter your email"
+                    placeholderTextColor="#999"
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    style={styles.input}
+                    value={formData.email}
+                    onChangeText={(text) => handleChange("email", text)}
+                />
+                {errors.email && (
+                    <Text style={styles.error}>{errors.email}</Text>
+                )}
 
-  const handleChange = (name: keyof FormData, value: string) => {
-    setFormData(prev => ({ ...prev, [name]: value }));
-    setErrors((prev: any) => ({ ...prev, [name]: undefined }));
-  };
-
-  
-
-  return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <View style={styles.card}>
-        <Text style={styles.title}>NailsPro</Text>
-        <Text style={styles.subtitle}>
-          Your beauty, our passion
-
-
-        </Text>
-
-
-        <TextInput
-          placeholder="Enter your email"
-          placeholderTextColor="#999"
-          keyboardType="email-address"
-          autoCapitalize="none"
-          style={styles.input}
-          value={formData.email}
-          onChangeText={(text) => handleChange('email', text)}
-        />
-        {errors.email && <Text style={styles.error}>{errors.email}</Text>}
-
-       
-
-        <TouchableOpacity
-          style={styles.button}
-          onPress={handleSubmit}
-          disabled={isLoading}
-        >
-          {isLoading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.buttonText}>
-              Sign In
-            </Text>
-          )}
-        </TouchableOpacity>
-
-      
-      </View>
-    </ScrollView>
-  );
+                <TouchableOpacity
+                    style={styles.button}
+                    onPress={handleSubmit}
+                    disabled={isLoading}
+                >
+                    {isLoading ? (
+                        <ActivityIndicator color="#fff" />
+                    ) : (
+                        <Text style={styles.buttonText}>Sign In</Text>
+                    )}
+                </TouchableOpacity>
+            </View>
+        </ScrollView>
+    );
 };
 
 export default NailsAuthScreen;
 
 const styles = StyleSheet.create({
-  container: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    backgroundColor: '#fdf2f8',
-    padding: 20,
-  },
-  card: {
-    backgroundColor: '#fff',
-    borderRadius: 20,
-    padding: 24,
-    elevation: 5,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    color: '#be185d',
-    marginBottom: 8,
-  },
-  subtitle: {
-    textAlign: 'center',
-    marginBottom: 20,
-    color: '#555',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 10,
-    padding: 12,
-    marginBottom: 10,
-  },
-  error: {
-    color: 'red',
-    fontSize: 12,
-    marginBottom: 10,
-  },
-  button: {
-    backgroundColor: '#db2777',
-    padding: 15,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-  },
-
+    container: {
+        flexGrow: 1,
+        justifyContent: "center",
+        backgroundColor: "#fdf2f8",
+        padding: 20,
+    },
+    card: {
+        backgroundColor: "#fff",
+        borderRadius: 20,
+        padding: 24,
+        elevation: 5,
+    },
+    title: {
+        fontSize: 28,
+        fontWeight: "bold",
+        textAlign: "center",
+        color: "#be185d",
+        marginBottom: 8,
+    },
+    subtitle: {
+        textAlign: "center",
+        marginBottom: 20,
+        color: "#555",
+    },
+    input: {
+        borderWidth: 1,
+        borderColor: "#ddd",
+        borderRadius: 10,
+        padding: 12,
+        marginBottom: 10,
+    },
+    error: {
+        color: "red",
+        fontSize: 12,
+        marginBottom: 10,
+    },
+    button: {
+        backgroundColor: "#db2777",
+        padding: 15,
+        borderRadius: 10,
+        alignItems: "center",
+        marginTop: 10,
+    },
+    buttonText: {
+        color: "#fff",
+        fontWeight: "bold",
+    },
 });
