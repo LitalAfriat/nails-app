@@ -1,3 +1,5 @@
+//layout.tsx- # Tab bar config
+
 // import { HapticTab } from '@/components/haptic-tab';
 // import { IconSymbol } from '@/components/ui/icon-symbol';
 // import { Colors } from '@/constants/theme';

@@ -1,1 +1,2 @@
+//extensions.json — recommended extensions for the project. When teammates open the project, VS Code will suggest installing these.
 { "recommendations": ["expo.vscode-expo-tools"] }
