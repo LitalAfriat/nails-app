@@ -8,7 +8,10 @@ import {
     TextInput,
     TouchableOpacity,
     View,
+    KeyboardAvoidingView,
+    Platform,
 } from "react-native";
+
 
 const NailsAuthScreen: React.FC = () => {
     const [email, setEmail] = useState<string>("");
@@ -49,7 +52,12 @@ const NailsAuthScreen: React.FC = () => {
     };
 
     return (
+         <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
         <ScrollView contentContainerStyle={styles.container}>
+             
             <View style={styles.card}>
                 <Text style={styles.title}>NailsPro</Text>
                 <Text style={styles.subtitle}>Your beauty, our passion</Text>
@@ -80,6 +88,7 @@ const NailsAuthScreen: React.FC = () => {
                 </TouchableOpacity>
             </View>
         </ScrollView>
+        </KeyboardAvoidingView>
     );
 };
 
@@ -92,6 +101,7 @@ const styles = StyleSheet.create({
         backgroundColor: "#fdf2f8",
         padding: 20,
     },
+    
     card: {
         backgroundColor: "#fff",
         borderRadius: 20,

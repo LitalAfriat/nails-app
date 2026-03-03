@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import {
     ActivityIndicator,
     Animated,
+    Button,
     KeyboardAvoidingView,
     Platform,
     StyleSheet,
@@ -11,6 +12,8 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
+import { router } from 'expo-router';
+
 
 interface VerificationCodeProps {
     length?: number;
@@ -163,12 +166,18 @@ const VerificationCode: React.FC<VerificationCodeProps> = ({
         inputRefs.current[index] = el;
     };
 
+     
+
     return (
         <KeyboardAvoidingView
             style={styles.container}
             behavior={Platform.OS === "ios" ? "padding" : "height"}
         >
+            <Button title="Go Back" onPress={() => router.back()} />
+         
+
             <View style={styles.content}>
+                
                 {/* Header */}
                 <View style={styles.header}>
                     <View style={styles.iconContainer}>
@@ -275,6 +284,7 @@ const styles = StyleSheet.create({
         backgroundColor: "#FFF5F7",
         padding: 20,
     },
+     
     content: {
         backgroundColor: "#FFFFFF",
         borderRadius: 24,
