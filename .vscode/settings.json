@@ -1,9 +1,0 @@
-//settings.json — project-level editor settings (overrides your global VS Code settings for this workspace). Things like tab size, formatter, file associations, etc.
-
-{
-    "editor.codeActionsOnSave": {
-        "source.fixAll": "explicit",
-        "source.organizeImports": "explicit",
-        "source.sortMembers": "explicit"
-    }
-}

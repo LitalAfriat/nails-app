@@ -2,7 +2,6 @@
     //The app.json file is the main configuration file for your Expo app — it defines how your app is built, displayed, and behaves across platforms.
 
     "expo": {
-        // App identity
         "name": "nails-app",
         "slug": "nails-app",
         "version": "1.0.0",
@@ -10,29 +9,23 @@
         "icon": "./assets/images/icon.png",
         "scheme": "nailsapp",
         "userInterfaceStyle": "automatic",
-        "newArchEnabled": true,
         "ios": {
             "supportsTablet": true
         },
         "android": {
-            // The "android" section in app.json configures Android-specific settings for your Expo app.
             "adaptiveIcon": {
                 "backgroundColor": "#E6F4FE",
                 "foregroundImage": "./assets/images/android-icon-foreground.png",
                 "backgroundImage": "./assets/images/android-icon-background.png",
                 "monochromeImage": "./assets/images/android-icon-monochrome.png"
             },
-            "edgeToEdgeEnabled": true,
             "predictiveBackGestureEnabled": false
         },
         "web": {
-            //The "web" section in app.json configures web-specific settings when running your Expo app in a browser.
             "output": "static",
             "favicon": "./assets/images/favicon.png"
         },
         "plugins": [
-            //    The "plugins" array in app.json is used to configure Expo Config Plugins — they modify native Android/iOS code during the build process without you having to touch native files directly.
-
             "expo-router",
             [
                 "expo-splash-screen",
@@ -47,12 +40,6 @@
                 }
             ],
             "expo-font"
-        ],
-        //  The "expo-font" plugin in app.json allows you to load custom fonts at the native level so they're available before your app renders.
-
-        "experiments": {
-            "typedRoutes": true,
-            "reactCompiler": true
-        }
+        ]
     }
 }

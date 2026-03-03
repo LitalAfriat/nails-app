@@ -1,6 +1,4 @@
-//# Home screen → "/"
 import React, { useState } from "react";
-
 import { router } from "expo-router";
 import {
     ActivityIndicator,
@@ -12,29 +10,23 @@ import {
     View,
 } from "react-native";
 
-interface FormData {
-    email: string;
-}
-
 const NailsAuthScreen: React.FC = () => {
-    const [formData, setFormData] = useState<FormData>({
-        email: "",
-    });
-    const [errors, setErrors] = useState<any>({});
-    const [isLoading, setIsLoading] = useState(false);
+    const [email, setEmail] = useState<string>("");
+    const [errors, setErrors] = useState<string>("");
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const validateForm = (): boolean => {
-        const newErrors: any = {};
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        let newErrors: string = "";
+        const emailRegex: RegExp = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-        if (!formData.email) {
-            newErrors.email = "Email is required";
-        } else if (!emailRegex.test(formData.email)) {
-            newErrors.email = "Invalid email";
+        if (!email) {
+            newErrors = "Email is required";
+        } else if (!emailRegex.test(email)) {
+            newErrors = "Invalid email";
         }
 
         setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
+        return newErrors.length === 0;
     };
 
     const handleSubmit = () => {
@@ -46,14 +38,14 @@ const NailsAuthScreen: React.FC = () => {
             setIsLoading(false);
             router.push({
                 pathname: "/verification-code",
-                params: { email: formData.email },
+                params: { email },
             });
         }, 1500);
     };
 
-    const handleChange = (name: keyof FormData, value: string) => {
-        setFormData((prev) => ({ ...prev, [name]: value }));
-        setErrors((prev: any) => ({ ...prev, [name]: undefined }));
+    const handleChange = (value: string) => {
+        setEmail(value);
+        setErrors("");
     };
 
     return (
@@ -68,12 +60,12 @@ const NailsAuthScreen: React.FC = () => {
                     keyboardType="email-address"
                     autoCapitalize="none"
                     style={styles.input}
-                    value={formData.email}
-                    onChangeText={(text) => handleChange("email", text)}
+                    value={email}
+                    onChangeText={handleChange}
                 />
-                {errors.email && (
-                    <Text style={styles.error}>{errors.email}</Text>
-                )}
+                {errors ? (
+                    <Text style={styles.error}>{errors}</Text>
+                ) : null}
 
                 <TouchableOpacity
                     style={styles.button}
