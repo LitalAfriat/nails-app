@@ -32,18 +32,38 @@ const NailsAuthScreen: React.FC = () => {
         return newErrors.length === 0;
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (!validateForm()) return;
 
         setIsLoading(true);
 
-        setTimeout(() => {
-            setIsLoading(false);
+        try {
+            const response = await fetch("http://192.168.1.128:3000/sendEmailCode", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ email }),
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to send email code");
+            }
+
+            const data = await response.json(); 
+            console.log("Success:", data);
+
             router.push({
                 pathname: "/verification-code",
                 params: { email },
             });
-        }, 1500);
+
+        } catch (err) {
+            const error = err instanceof Error ? err.message : "Unknown error";
+            alert(`Something went wrong. Error: ${error}`);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const handleChange = (value: string) => {
