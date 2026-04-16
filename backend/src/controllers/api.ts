@@ -11,18 +11,18 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-function random6DigitInteger(): number {
-    return Math.floor(Math.random() * 900000) + 100000;
+function random6DigitCode(): string {
+  return (Math.floor(Math.random() * 900000) + 100000).toString();
 }
 
 async function sendEmailCode(req: Request, res: Response) {
     const emailRespond = await transporter.sendMail({
-    from: 'afriatnails@gmail.com', // use env
+    from: process.env.EMAIL_USER, 
     to: req.body.email ,
     subject: 'Nails App Email Verification Code.',
-    html: `<p> ${random6DigitInteger()} </p>`,
+    html: `<p> ${random6DigitCode()} </p>`,
     
     });
 
     return res.status(200).json({ message: "Hello LIT!" }); // send info about the success of the email sending, and not just a message
-} 
+}
