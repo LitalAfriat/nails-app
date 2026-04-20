@@ -32,7 +32,7 @@ export default function VerificationScreen() {
   }, 1000);
 
   return () => clearTimeout(timer);
-}, [resendTimer]);
+  }, [resendTimer]);
 
   const handleChange = (value: string, index: number) => {
     if (!/^\d?$/.test(value)) return;
@@ -47,22 +47,21 @@ export default function VerificationScreen() {
   };
 
 
-  const handleKeyPress = (e: { nativeEvent: { key: string } }, index: number) => {
-  if (e.nativeEvent.key === "Backspace" && !code[index] && index > 0) {
-    inputs.current[index - 1]?.focus();
-  }
-};
+    const handleKeyPress = (e: { nativeEvent: { key: string } }, index: number) => {
+    if (e.nativeEvent.key === "Backspace" && !code[index] && index > 0) {
+        inputs.current[index - 1]?.focus();
+    }
+    };
 
   const handleVerify = () => {
     const verificationCode = code.join("");
     Alert.alert("Verification Code", verificationCode);
   };
 
-  const handleResend = () => {
+  const handleResend = async () => {
     if (resendTimer > 0) return;
 
     // 🔁 Call your API here
-     const handleSubmit = async () => {
            
     
             try {
@@ -86,9 +85,7 @@ export default function VerificationScreen() {
                 const error = err instanceof Error ? err.message : "Unknown error";
                 alert(`Something went wrong. Error: ${error}`);
             }
-        };
     
-    handleSubmit()
     
     Alert.alert("Code resent!", `Sent to: ${email}`);
 
