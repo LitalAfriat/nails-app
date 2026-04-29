@@ -44,19 +44,32 @@ export default function VerificationScreen() {
     if (value && index < OTP_LENGTH - 1) {
       inputs.current[index + 1]?.focus();
     }
+   
   };
 
 
     const handleKeyPress = (e: { nativeEvent: { key: string } }, index: number) => {
     if (e.nativeEvent.key === "Backspace" && !code[index] && index > 0) {
         inputs.current[index - 1]?.focus();
-    }
-    };
+    } 
+    }; 
 
-  const handleVerify = () => {
+  const handleVerify = async () => {
     const verificationCode = code.join("");
+
     Alert.alert("Verification Code", verificationCode);
+
+    console.log("CODE USER: ", {verificationCode})
+
+await fetch("http://192.168.1.128:3000/sendCode", {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ verificationCode }),
+    });
   };
+
+
+
 
   const handleResend = async () => {
     if (resendTimer > 0) return;
@@ -123,6 +136,8 @@ export default function VerificationScreen() {
             }}
             onChangeText={(text) => handleChange(text, index)}
             onKeyPress={(e) => handleKeyPress(e, index)}
+           
+  returnKeyType="send"
           />
         ))}
       </View>

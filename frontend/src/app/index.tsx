@@ -17,7 +17,7 @@ import { useEmail } from "@/context/EmailContext";
 const NailsAuthScreen: React.FC = () => {
     const {email, setEmail} = useEmail()
 
-    // const [email, setEmail] = useState<string>("");
+   
     const [errors, setErrors] = useState<string>("");
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
