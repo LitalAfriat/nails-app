@@ -64,7 +64,7 @@ export default function VerificationScreen() {
 await fetch("http://192.168.1.128:3000/sendCode", {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ verificationCode }),
+      body: JSON.stringify({ verificationCode, email }),
     });
   };
 
