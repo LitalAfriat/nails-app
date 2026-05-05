@@ -12,9 +12,12 @@ import {
     Platform,
 } from "react-native";
 
+import { useEmail } from "@/context/EmailContext"; 
 
 const NailsAuthScreen: React.FC = () => {
-    const [email, setEmail] = useState<string>("");
+    const {email, setEmail} = useEmail()
+
+   
     const [errors, setErrors] = useState<string>("");
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -54,7 +57,7 @@ const NailsAuthScreen: React.FC = () => {
             console.log("Success:", data);
 
             router.push({
-                pathname: "/verification-code",
+                pathname: "../verification-code",
                 params: { email },
             });
 
@@ -72,6 +75,7 @@ const NailsAuthScreen: React.FC = () => {
     };
 
     return (
+        
          <KeyboardAvoidingView
       style={{ flex: 1 }}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -109,7 +113,9 @@ const NailsAuthScreen: React.FC = () => {
             </View>
         </ScrollView>
         </KeyboardAvoidingView>
+     
     );
+    
 };
 
 export default NailsAuthScreen;
