@@ -36,6 +36,14 @@ async function sendCode(req: Request, res: Response) {
     const { email, verificationCode } = req.body;
 
     const success = await verifyCode(email, verificationCode);
-
-    return res.status(200).json({ success, message: "Code sent successfully" });
+    console.log(success);
+    if (success) {
+        return res
+            .status(200)
+            .json({ success: true, message: "Code verified successfully" });
+    } else {
+        return res
+            .status(400)
+            .json({ success: false, message: "Invalid or expired code" });
+    }
 }

@@ -59,7 +59,7 @@ export default function VerificationScreen() {
 
     Alert.alert("Verification Code", verificationCode);
 
-    console.log("CODE USER: ", {verificationCode})
+   
 
 await fetch("http://192.168.1.128:3000/sendCode", {
       method: 'POST',

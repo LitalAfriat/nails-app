@@ -1,11 +1,11 @@
 import { Pool } from "pg";
 
 export const pool = new Pool({
-    host: process.env.DB_HOST || "localhost",
-    port: Number(process.env.DB_PORT) || 5432,
-    database: process.env.DB_NAME || "myappdb",
-    user: process.env.DB_USER || "myappuser",
-    password: process.env.DB_PASSWORD || "yourpassword",
+    host: process.env.DB_HOST,
+    port: Number(process.env.DB_PORT),
+    database: process.env.DB_NAME,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
 });
 
 export { initDB, storeCode, verifyCode };
@@ -21,9 +21,7 @@ async function initDB(): Promise<void> {
                 id SERIAL PRIMARY KEY,
                 email VARCHAR(255) NOT NULL,
                 code VARCHAR(6) NOT NULL,
-                created_at TIMESTAMP DEFAULT NOW(),
-                expires_at TIMESTAMP DEFAULT NOW() + INTERVAL '10 minutes',
-                used BOOLEAN DEFAULT FALSE
+                created_at TIMESTAMP DEFAULT NOW()
             )
         `);
         console.log("✅ email_verification_codes table ready!");
