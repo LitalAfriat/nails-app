@@ -36,7 +36,7 @@ async function sendCode(req: Request, res: Response) {
     const { email, verificationCode } = req.body;
 
     const success = await verifyCode(email, verificationCode);
-    console.log(success);
+
     if (success) {
         return res
             .status(200)
