@@ -1,19 +1,24 @@
 {
-    "name": "nailsApp-backend",
+    "name": "nailsApp",
     "version": "1.0.0",
     "scripts": {
-        "dev": "ts-node -r dotenv/config src/index.ts",
+        "dev": "nodemon --exec 'ts-node -r dotenv/config src/index.ts' --ext ts",
+        "migrate": "ts-node -r dotenv/config src/migrate.ts",
         "build": "tsc",
         "start": "node dist/index.js"
     },
     "dependencies": {
-        "dotenv": "^17.3.1",
-        "express": "^4.18.2"
+        "dotenv": "^17.4.2",
+        "express": "^4.22.1",
+        "nodemailer": "^8.0.1",
+        "pg": "^8.20.0"
     },
     "devDependencies": {
-        "@types/express": "^4.17.21",
+        "@types/express": "^4.17.25",
         "@types/node": "^20.0.0",
+        "@types/nodemailer": "^7.0.11",
+        "@types/pg": "^8.20.0",
         "ts-node": "^10.9.2",
-        "typescript": "^5.3.0"
+        "typescript": "^5.9.3"
     }
 }
