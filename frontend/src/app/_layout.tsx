@@ -1,14 +1,15 @@
 // app/_layout.tsx
 import { Stack } from "expo-router";
-import { EmailProvider } from '../context/EmailContext';
+import { LoginProvider } from "../context/LoginContext";
 
 export default function Layout() {
-    
-  return  <EmailProvider>
-  <Stack
-        screenOptions={{
-            headerShown: false,
-        }}
-    />
-    </EmailProvider>
+    return (
+        <LoginProvider>
+            <Stack
+                screenOptions={{
+                    headerShown: false,
+                }}
+            />
+        </LoginProvider>
+    );
 }

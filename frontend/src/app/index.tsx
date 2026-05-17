@@ -1,172 +1,190 @@
-import React, { useState } from "react";
-import { router } from "expo-router";
-import {
-    ActivityIndicator,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
-    KeyboardAvoidingView,
-    Platform,
-} from "react-native";
+// screens/RoleSelectScreen.tsx
+import React from "react";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import { useLogin } from "@/context/LoginContext";
 
-import { useEmail } from "@/context/EmailContext"; 
+export default function RoleSelectScreen() {
+    const router = useRouter();
+    const { connection } = useLogin();
 
-const NailsAuthScreen: React.FC = () => {
-    const {email, setEmail} = useEmail()
-
-   
-    const [errors, setErrors] = useState<string>("");
-    const [isLoading, setIsLoading] = useState<boolean>(false);
-
-    const validateForm = (): boolean => {
-        let newErrors: string = "";
-        const emailRegex: RegExp = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-        if (!email) {
-            newErrors = "Email is required";
-        } else if (!emailRegex.test(email)) {
-            newErrors = "Invalid email";
-        }
-
-        setErrors(newErrors);
-        return newErrors.length === 0;
-    };
-
-    const handleSubmit = async () => {
-        if (!validateForm()) return;
-
-        setIsLoading(true);
-
-        try {
-            const response = await fetch("http://192.168.1.128:3000/sendEmailCode", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ email }),
-            });
-
-            if (!response.ok) {
-                throw new Error("Failed to send email code");
-            }
-
-            const data = await response.json(); 
-            console.log("Success:", data);
-
+    const userType = () => {
+        if (connection.current === "client") {
             router.push({
-                pathname: "../verification-code",
-                params: { email },
+                pathname: "../login",
             });
-
-        } catch (err) {
-            const error = err instanceof Error ? err.message : "Unknown error";
-            alert(`Something went wrong. Error: ${error}`);
-        } finally {
-            setIsLoading(false);
+        } else if (connection.current === "business") {
+            router.push({
+                pathname: "../login",
+            });
         }
-    };
-
-    const handleChange = (value: string) => {
-        setEmail(value);
-        setErrors("");
     };
 
     return (
-        
-         <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
-        <ScrollView contentContainerStyle={styles.container}>
-             
-            <View style={styles.card}>
-                <Text style={styles.title}>NailsPro</Text>
-                <Text style={styles.subtitle}>Your beauty, our passion</Text>
+        <View style={styles.container}>
+            <View style={styles.inner}>
+                {/* Logo / Header */}
+                <View style={styles.header}>
+                    <View style={styles.logoCircle}>
+                        <Ionicons
+                            name="storefront-outline"
+                            size={32}
+                            color="#be185d"
+                        />
+                    </View>
+                    <Text style={styles.title}>Welcome to Niles</Text>
+                    <Text style={styles.subtitle}>
+                        Who are you signing in as?
+                    </Text>
+                </View>
+                {/* Buttons */}
+                <View style={styles.buttonsContainer}>
+                    <TouchableOpacity
+                        style={styles.card}
+                        onPress={() => {
+                            connection.current = "client"; // ← set first
+                            userType();
+                        }}
+                        activeOpacity={0.7}
+                    >
+                        <View
+                            style={[
+                                styles.iconBox,
+                                { backgroundColor: "#EBF4FF" },
+                            ]}
+                        >
+                            <Ionicons
+                                name="person-outline"
+                                size={26}
+                                color="#3B82F6"
+                            />
+                        </View>
+                        <View style={styles.cardText}>
+                            <Text style={styles.cardTitle}>client</Text>
+                            <Text style={styles.cardSubtitle}>
+                                Make an Appointment & manage your orders
+                            </Text>
+                        </View>
+                        <Ionicons
+                            name="chevron-forward"
+                            size={20}
+                            color="#ccc"
+                        />
+                    </TouchableOpacity>
 
-                <TextInput
-                    placeholder="Enter your email"
-                    placeholderTextColor="#999"
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    style={styles.input}
-                    value={email}
-                    onChangeText={handleChange}
-                />
-                {errors ? (
-                    <Text style={styles.error}>{errors}</Text>
-                ) : null}
-
-                <TouchableOpacity
-                    style={styles.button}
-                    onPress={handleSubmit}
-                    disabled={isLoading}
-                >
-                    {isLoading ? (
-                        <ActivityIndicator color="#fff" />
-                    ) : (
-                        <Text style={styles.buttonText}>Sign In</Text>
-                    )}
-                </TouchableOpacity>
+                    <TouchableOpacity
+                        style={styles.card}
+                        onPress={() => {
+                            connection.current = "business";
+                            userType();
+                        }}
+                        activeOpacity={0.7}
+                    >
+                        <View
+                            style={[
+                                styles.iconBox,
+                                { backgroundColor: "#EDFBF1" },
+                            ]}
+                        >
+                            <Ionicons
+                                name="briefcase-outline"
+                                size={26}
+                                color="#22C55E"
+                            />
+                        </View>
+                        <View style={styles.cardText}>
+                            <Text style={styles.cardTitle}>Employee</Text>
+                            <Text style={styles.cardSubtitle}>
+                                View schedule & manage your jobs
+                            </Text>
+                        </View>
+                        <Ionicons
+                            name="chevron-forward"
+                            size={20}
+                            color="#ccc"
+                        />
+                    </TouchableOpacity>
+                </View>
+                <Text style={styles.hint}>
+                    You can switch roles anytime from settings
+                </Text>
             </View>
-        </ScrollView>
-        </KeyboardAvoidingView>
-     
+        </View>
     );
-    
-};
-
-export default NailsAuthScreen;
+}
 
 const styles = StyleSheet.create({
     container: {
-        flexGrow: 1,
-        justifyContent: "center",
-        backgroundColor: "#fdf2f8",
-        padding: 20,
-    },
-    
-    card: {
+        flex: 1,
         backgroundColor: "#fff",
-        borderRadius: 20,
-        padding: 24,
-        elevation: 5,
     },
-    title: {
-        fontSize: 28,
-        fontWeight: "bold",
-        textAlign: "center",
-        color: "#be185d",
+    inner: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        paddingHorizontal: 24,
+        gap: 32,
+    },
+    header: {
+        alignItems: "center",
+        gap: 8,
+    },
+    logoCircle: {
+        width: 68,
+        height: 68,
+        borderRadius: 34,
+        backgroundColor: "#fdf2f8",
+        alignItems: "center",
+        justifyContent: "center",
         marginBottom: 8,
     },
+    title: {
+        fontSize: 24,
+        fontWeight: "600",
+        color: "#be185d",
+    },
     subtitle: {
-        textAlign: "center",
-        marginBottom: 20,
-        color: "#555",
+        fontSize: 15,
+        color: "#888",
     },
-    input: {
-        borderWidth: 1,
-        borderColor: "#ddd",
-        borderRadius: 10,
-        padding: 12,
-        marginBottom: 10,
+    buttonsContainer: {
+        width: "100%",
+        gap: 14,
     },
-    error: {
-        color: "red",
-        fontSize: 12,
-        marginBottom: 10,
-    },
-    button: {
-        backgroundColor: "#db2777",
-        padding: 15,
-        borderRadius: 10,
+    card: {
+        flexDirection: "row",
         alignItems: "center",
-        marginTop: 10,
+        padding: 18,
+        borderRadius: 16,
+        borderWidth: 1,
+        borderColor: "#E5E7EB",
+        backgroundColor: "#fff",
+        gap: 14,
     },
-    buttonText: {
-        color: "#fff",
-        fontWeight: "bold",
+    iconBox: {
+        width: 50,
+        height: 50,
+        borderRadius: 12,
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    cardText: {
+        flex: 1,
+        gap: 3,
+    },
+    cardTitle: {
+        fontSize: 16,
+        fontWeight: "600",
+        color: "#111",
+    },
+    cardSubtitle: {
+        fontSize: 13,
+        color: "#888",
+    },
+    hint: {
+        fontSize: 12,
+        color: "#aaa",
+        textAlign: "center",
     },
 });
