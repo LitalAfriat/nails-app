@@ -9,18 +9,6 @@ export default function RoleSelectScreen() {
     const router = useRouter();
     const { connection } = useLogin();
 
-    const userType = () => {
-        if (connection.current === "client") {
-            router.push({
-                pathname: "../login",
-            });
-        } else if (connection.current === "business") {
-            router.push({
-                pathname: "../login",
-            });
-        }
-    };
-
     return (
         <View style={styles.container}>
             <View style={styles.inner}>
@@ -33,18 +21,17 @@ export default function RoleSelectScreen() {
                             color="#be185d"
                         />
                     </View>
-                    <Text style={styles.title}>Welcome to Niles</Text>
-                    <Text style={styles.subtitle}>
-                        Who are you signing in as?
-                    </Text>
+                    <Text style={styles.title}>Nailsit</Text>
                 </View>
                 {/* Buttons */}
                 <View style={styles.buttonsContainer}>
                     <TouchableOpacity
                         style={styles.card}
                         onPress={() => {
-                            connection.current = "client"; // ← set first
-                            userType();
+                            connection.current = "client";
+                            router.push({
+                                pathname: "../login",
+                            });
                         }}
                         activeOpacity={0.7}
                     >
@@ -61,23 +48,21 @@ export default function RoleSelectScreen() {
                             />
                         </View>
                         <View style={styles.cardText}>
-                            <Text style={styles.cardTitle}>client</Text>
+                            <Text style={styles.cardTitle}>לקוח</Text>
                             <Text style={styles.cardSubtitle}>
-                                Make an Appointment & manage your orders
+                                לקביעת תורים
                             </Text>
                         </View>
-                        <Ionicons
-                            name="chevron-forward"
-                            size={20}
-                            color="#ccc"
-                        />
+                        <Ionicons name="chevron-back" size={20} color="#ccc" />
                     </TouchableOpacity>
 
                     <TouchableOpacity
                         style={styles.card}
                         onPress={() => {
                             connection.current = "business";
-                            userType();
+                            router.push({
+                                pathname: "../login",
+                            });
                         }}
                         activeOpacity={0.7}
                     >
@@ -94,20 +79,16 @@ export default function RoleSelectScreen() {
                             />
                         </View>
                         <View style={styles.cardText}>
-                            <Text style={styles.cardTitle}>Employee</Text>
+                            <Text style={styles.cardTitle}>בעל העסק</Text>
                             <Text style={styles.cardSubtitle}>
-                                View schedule & manage your jobs
+                                צפה בלוח הזמנים ונהל את המשימות שלך
                             </Text>
                         </View>
-                        <Ionicons
-                            name="chevron-forward"
-                            size={20}
-                            color="#ccc"
-                        />
+                        <Ionicons name="chevron-back" size={20} color="#ccc" />
                     </TouchableOpacity>
                 </View>
                 <Text style={styles.hint}>
-                    You can switch roles anytime from settings
+                    ניתן להחליף תפקידים בכל עת דרך ההגדרות
                 </Text>
             </View>
         </View>
@@ -144,16 +125,13 @@ const styles = StyleSheet.create({
         fontWeight: "600",
         color: "#be185d",
     },
-    subtitle: {
-        fontSize: 15,
-        color: "#888",
-    },
+
     buttonsContainer: {
         width: "100%",
         gap: 14,
     },
     card: {
-        flexDirection: "row",
+        flexDirection: "row-reverse",
         alignItems: "center",
         padding: 18,
         borderRadius: 16,
@@ -174,11 +152,13 @@ const styles = StyleSheet.create({
         gap: 3,
     },
     cardTitle: {
+        textAlign: "right",
         fontSize: 16,
         fontWeight: "600",
         color: "#111",
     },
     cardSubtitle: {
+        textAlign: "right",
         fontSize: 13,
         color: "#888",
     },

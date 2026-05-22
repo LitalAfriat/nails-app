@@ -4,7 +4,7 @@ import { Text, StyleSheet, View } from "react-native";
 const client = () => {
     return (
         <View>
-            <Text style={styles.titleText}>heloow clint</Text>
+            <Text style={styles.titleText}>hello clint</Text>
         </View>
     );
 };

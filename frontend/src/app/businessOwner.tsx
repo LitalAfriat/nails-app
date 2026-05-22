@@ -4,7 +4,7 @@ import { Text, StyleSheet, View } from "react-native";
 const business = () => {
     return (
         <View>
-            <Text style={styles.titleText}>heloow business</Text>
+            <Text style={styles.titleText}>hello business</Text>
         </View>
     );
 };

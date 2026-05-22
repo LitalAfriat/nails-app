@@ -5,9 +5,10 @@ import {
     TextInput,
     StyleSheet,
     TouchableOpacity,
+    ActivityIndicator,
     Alert,
 } from "react-native";
-import { useRouter, router } from "expo-router";
+import { useRouter } from "expo-router";
 import { useLogin } from "@/context/LoginContext";
 
 export default function VerificationScreen() {
@@ -16,7 +17,7 @@ export default function VerificationScreen() {
 
     const router = useRouter();
     const { email } = useLogin();
-    const { connection, setConnection } = useLogin();
+    const { connection } = useLogin();
     const [code, setCode] = useState<string[]>(Array(OTP_LENGTH).fill(""));
     const [resendTimer, setResendTimer] = useState(RESEND_DELAY_SECONDS);
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -45,7 +46,7 @@ export default function VerificationScreen() {
         }
     };
 
-    const handleKeyPress = (
+    const handleDeletion = (
         e: { nativeEvent: { key: string } },
         index: number,
     ) => {
@@ -66,24 +67,19 @@ export default function VerificationScreen() {
                 body: JSON.stringify({ verificationCode, email }),
             });
 
-            console.log(res.ok);
             if (!res.ok) {
-                throw new Error("Failed to send email code");
+                throw new Error("שליחת קוד האימייל נכשלה");
             }
-
-            const data = await res.json();
-            console.log("Success:", data);
-
             if (connection.current === "client") {
                 router.push({ pathname: "../client" });
             } else if (connection.current === "business") {
                 router.push({ pathname: "../businessOwner" });
             } else {
-                router.push({ pathname: "../login" });
+                router.push({ pathname: "../index" });
             }
         } catch (err) {
-            const error = err instanceof Error ? err.message : "Unknown error";
-            alert(`Something went wrong. Error: ${error}`);
+            const error = err instanceof Error ? err.message : "שגיאה לא ידועה";
+            Alert.alert(`שגיאה: ${error}.`);
         } finally {
             setIsLoading(false);
         }
@@ -91,8 +87,6 @@ export default function VerificationScreen() {
 
     const handleResend = async () => {
         if (resendTimer > 0) return;
-
-        // 🔁 Call your API here
 
         try {
             const response = await fetch(
@@ -107,17 +101,12 @@ export default function VerificationScreen() {
             );
 
             if (!response.ok) {
-                throw new Error("Failed to send email code");
+                throw new Error("שליחת קוד האימייל נכשלה");
             }
-
-            const data = await response.json();
-            console.log("Success:", data);
         } catch (err) {
-            const error = err instanceof Error ? err.message : "Unknown error";
-            alert(`Something went wrong. Error: ${error}`);
+            const error = err instanceof Error ? err.message : "שגיאה לא ידועה";
+            Alert.alert(`שגיאה: ${error}.`);
         }
-
-        Alert.alert("Code resent!", `Sent to: ${email}`);
 
         setResendTimer(RESEND_DELAY_SECONDS);
     };
@@ -129,14 +118,14 @@ export default function VerificationScreen() {
                     onPress={() => router.back()}
                     style={styles.buttonB}
                 >
-                    <Text style={styles.text}>← Go Back</Text>
+                    <Text style={styles.text}>←</Text>
                 </TouchableOpacity>
             </View>
 
-            <Text style={styles.title}>Enter Verification Code</Text>
+            <Text style={styles.title}>הזן קוד אימות</Text>
 
             {email ? (
-                <Text style={styles.subtitle}>Code sent to {email}</Text>
+                <Text style={styles.subtitle}>{email} קוד נשלח אל</Text>
             ) : null}
 
             <View style={styles.inputContainer}>
@@ -153,7 +142,7 @@ export default function VerificationScreen() {
                             }
                         }}
                         onChangeText={(text) => handleChange(text, index)}
-                        onKeyPress={(e) => handleKeyPress(e, index)}
+                        onKeyPress={(e) => handleDeletion(e, index)}
                         returnKeyType="send"
                     />
                 ))}
@@ -168,13 +157,17 @@ export default function VerificationScreen() {
                     ]}
                 >
                     {resendTimer > 0
-                        ? `Resend code in ${resendTimer}s`
-                        : "Resend Code"}
+                        ? `שלח שוב את הקוד ב ${resendTimer}s`
+                        : "שלח קוד מחדש"}
                 </Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.button} onPress={handleVerify}>
-                <Text style={styles.buttonText}>Verify</Text>
+                {isLoading ? (
+                    <ActivityIndicator color="#fff" />
+                ) : (
+                    <Text style={styles.buttonText}>אימות</Text>
+                )}
             </TouchableOpacity>
         </View>
     );
@@ -201,7 +194,7 @@ const styles = StyleSheet.create({
         alignSelf: "flex-start",
     },
     text: {
-        fontSize: 16,
+        fontSize: 28,
         color: "#be185d",
     },
     title: {
@@ -239,6 +232,7 @@ const styles = StyleSheet.create({
         fontWeight: "500",
     },
     disabledText: {
+        textAlign: "right",
         color: "#9ca3af",
     },
     button: {

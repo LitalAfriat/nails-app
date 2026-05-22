@@ -25,9 +25,9 @@ const NailsAuthScreen: React.FC = () => {
         const emailRegex: RegExp = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
         if (!email) {
-            newErrors = "Email is required";
+            newErrors = "נדרש אימייל";
         } else if (!emailRegex.test(email)) {
-            newErrors = "Invalid email";
+            newErrors = "אימייל לא חוקי";
         }
 
         setErrors(newErrors);
@@ -52,7 +52,7 @@ const NailsAuthScreen: React.FC = () => {
             );
 
             if (!response.ok) {
-                throw new Error("Failed to send email code");
+                throw new Error("שליחת קוד אימייל נכשלה");
             }
 
             const data = await response.json();
@@ -62,8 +62,8 @@ const NailsAuthScreen: React.FC = () => {
                 pathname: "../verification-code",
             });
         } catch (err) {
-            const error = err instanceof Error ? err.message : "Unknown error";
-            alert(`Something went wrong. Error: ${error}`);
+            const error = err instanceof Error ? err.message : "שגיאה לא ידועה";
+            alert(`${error} משהו השתבש. שגיאה:`);
         } finally {
             setIsLoading(false);
         }
@@ -85,22 +85,22 @@ const NailsAuthScreen: React.FC = () => {
                         onPress={() => router.back()}
                         style={styles.buttonB}
                     >
-                        <Text style={styles.text}>← Go Back</Text>
+                        <Text style={styles.text}>←</Text>
                     </TouchableOpacity>
                 </View>
 
                 <View style={styles.card}>
-                    <Text style={styles.title}>NailsPro</Text>
+                    <Text style={styles.title}>כניסה</Text>
                     <Text style={styles.subtitle}>
-                        Your beauty, our passion
+                        כדי להתחבר יש להכניס את כתובת המייל שלך
                     </Text>
 
                     <TextInput
-                        placeholder="Enter your email"
+                        placeholder="הכנס את אימייל שלך"
                         placeholderTextColor="#999"
                         keyboardType="email-address"
                         autoCapitalize="none"
-                        style={styles.input}
+                        style={[styles.input, { textAlign: "right" }]}
                         value={email}
                         onChangeText={handleChange}
                     />
@@ -114,7 +114,7 @@ const NailsAuthScreen: React.FC = () => {
                         {isLoading ? (
                             <ActivityIndicator color="#fff" />
                         ) : (
-                            <Text style={styles.buttonText}>Sign In</Text>
+                            <Text style={styles.buttonText}>התחבר</Text>
                         )}
                     </TouchableOpacity>
                 </View>
@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
         alignSelf: "flex-start",
     },
     text: {
-        fontSize: 16,
+        fontSize: 28,
         color: "#be185d",
     },
 
@@ -175,6 +175,7 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     error: {
+        textAlign: "right",
         color: "red",
         fontSize: 12,
         marginBottom: 10,

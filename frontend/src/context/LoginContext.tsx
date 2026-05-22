@@ -19,7 +19,7 @@ const LoginContext = createContext<LoginContextType | undefined>(undefined);
 
 export const LoginProvider = ({ children }: { children: ReactNode }) => {
     const [email, setEmail] = useState<string>("");
-    // const [connection, setConnection] = useState<ConnectionType | "">("");
+
     const connection = useRef<ConnectionType>("");
 
     return (
