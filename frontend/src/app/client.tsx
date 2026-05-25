@@ -1,25 +1,61 @@
-import React from "react";
-import { Text, StyleSheet, View } from "react-native";
+import React, { forwardRef } from "react";
+import { View, TextInput } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
-const client = () => {
-    return (
-        <View>
-            <Text style={styles.titleText}>hello clint</Text>
-        </View>
-    );
-};
+interface SearchProps {
+    func: (value: string) => void;
+    focus?: boolean;
+}
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
+const Search = forwardRef<TextInput, SearchProps>(
+    ({ func, focus = false }, ref) => {
+        return (
+            <View
+                style={{
+                    paddingTop: 100,
+                    alignItems: "center",
+                    backgroundColor: "#fdf2f8",
+                }}
+            >
+                <View
+                    style={{
+                        width: "85%",
+                        shadowColor: "#727273",
+                        shadowRadius: 4,
+                        shadowOpacity: 0.3,
+                        shadowOffset: { width: 0, height: 5 },
+                        backgroundColor: "#ffffff",
+                        flexDirection: "row",
+                        alignItems: "center",
+                        height: 48,
+                        paddingHorizontal: 24,
+                        borderRadius: 999,
+                    }}
+                >
+                    <Ionicons
+                        name="search"
+                        size={24}
+                        color="gray"
+                        style={{ marginRight: 8 }}
+                    />
+                    <TextInput
+                        ref={ref}
+                        style={{
+                            flex: 1,
+                            fontSize: 18,
+                            textAlign: "auto",
+                        }}
+                        placeholder=" חיפוש בית עסק"
+                        placeholderTextColor="gray"
+                        onChangeText={func}
+                        autoFocus={focus}
+                    />
+                </View>
+            </View>
+        );
     },
-    baseText: {
-        fontFamily: "Cochin",
-    },
-    titleText: {
-        fontSize: 20,
-        fontWeight: "bold",
-    },
-});
+);
 
-export default client;
+Search.displayName = "Search";
+
+export default Search;

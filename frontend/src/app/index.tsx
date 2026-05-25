@@ -29,6 +29,7 @@ export default function RoleSelectScreen() {
                         style={styles.card}
                         onPress={() => {
                             connection.current = "client";
+                            console.log(connection.current);
                             router.push({
                                 pathname: "../login",
                             });
@@ -38,13 +39,13 @@ export default function RoleSelectScreen() {
                         <View
                             style={[
                                 styles.iconBox,
-                                { backgroundColor: "#EBF4FF" },
+                                { backgroundColor: "#fff7eb" },
                             ]}
                         >
                             <Ionicons
                                 name="person-outline"
                                 size={26}
-                                color="#3B82F6"
+                                color="#6b3f05"
                             />
                         </View>
                         <View style={styles.cardText}>
@@ -60,6 +61,7 @@ export default function RoleSelectScreen() {
                         style={styles.card}
                         onPress={() => {
                             connection.current = "business";
+                            console.log(connection.current);
                             router.push({
                                 pathname: "../login",
                             });
@@ -75,7 +77,7 @@ export default function RoleSelectScreen() {
                             <Ionicons
                                 name="briefcase-outline"
                                 size={26}
-                                color="#22C55E"
+                                color="#1c7a6a"
                             />
                         </View>
                         <View style={styles.cardText}>
