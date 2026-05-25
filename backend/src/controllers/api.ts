@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import nodemailer from "nodemailer";
-import { storeCode, verifyCode } from "../database/pgHandler";
+import { storeCode, verifyCode, userT } from "../database/pgHandler";
 
 export { sendEmailCode, sendCode };
 
@@ -19,6 +19,8 @@ function random6DigitCode(): string {
 async function sendEmailCode(req: Request, res: Response) {
     const DigitCode = random6DigitCode();
     const email = req.body.email;
+    const connection = req.body.connection;
+    console.log(connection);
 
     await storeCode(email, DigitCode);
 
@@ -28,6 +30,12 @@ async function sendEmailCode(req: Request, res: Response) {
         subject: "Nails App Email Verification Code.",
         html: `<p> ${DigitCode} </p>`,
     });
+
+    if (connection?.current === "client") {
+        await userT(email, null);
+    } else {
+        await userT(null, email);
+    }
 
     return res.status(200).json({});
 }
@@ -40,10 +48,10 @@ async function sendCode(req: Request, res: Response) {
     if (success) {
         return res
             .status(200)
-            .json({ success: true, message: "Code verified successfully" });
+            .json({ success: true, message: "הקוד אומת בהצלחה" });
     } else {
         return res
             .status(400)
-            .json({ success: false, message: "Invalid or expired code" });
+            .json({ success: false, message: "קוד לא תקין או פג תוקף" });
     }
 }

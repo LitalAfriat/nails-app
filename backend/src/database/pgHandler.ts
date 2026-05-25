@@ -8,7 +8,7 @@ export const pool = new Pool({
     password: process.env.DB_PASSWORD,
 });
 
-export { initDB, storeCode, verifyCode };
+export { initDB, storeCode, verifyCode, userT };
 
 async function initDB(): Promise<void> {
     const client = await pool.connect();
@@ -25,6 +25,16 @@ async function initDB(): Promise<void> {
             )
         `);
         console.log("✅ email_verification_codes table ready!");
+
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS users (
+                id SERIAL PRIMARY KEY,
+                client VARCHAR(255),
+                business VARCHAR(255),
+                created_at TIMESTAMP DEFAULT NOW()
+            )
+        `);
+        console.log("✅ users table ready!");
     } catch (err) {
         console.error("❌ Database connection failed:", (err as Error).message);
         throw err;
@@ -60,4 +70,12 @@ async function verifyCode(email: string, inputCode: string): Promise<boolean> {
     }
 
     return true;
+}
+
+async function userT(client: string | null, business: string | null) {
+    // Store the new code in the DB
+    await pool.query(`INSERT INTO users (client, business) VALUES ($1, $2)`, [
+        client,
+        business,
+    ]);
 }
