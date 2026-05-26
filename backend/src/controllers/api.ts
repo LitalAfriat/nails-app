@@ -22,7 +22,7 @@ async function sendEmailCode(req: Request, res: Response) {
 
     await storeCode(email, DigitCode);
 
-    const emailRespond = await transporter.sendMail({
+    await transporter.sendMail({
         from: process.env.EMAIL_USER,
         to: req.body.email,
         subject: "Nails App Email Verification Code.",
