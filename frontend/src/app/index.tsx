@@ -7,7 +7,7 @@ import { useLogin } from "@/context/LoginContext";
 
 export default function RoleSelectScreen() {
     const router = useRouter();
-    const { connection } = useLogin();
+    const { connectionType } = useLogin();
 
     return (
         <View style={styles.container}>
@@ -28,8 +28,7 @@ export default function RoleSelectScreen() {
                     <TouchableOpacity
                         style={styles.card}
                         onPress={() => {
-                            connection.current = "client";
-                            console.log(connection.current);
+                            connectionType.current = "client";
                             router.push({
                                 pathname: "../login",
                             });
@@ -60,8 +59,7 @@ export default function RoleSelectScreen() {
                     <TouchableOpacity
                         style={styles.card}
                         onPress={() => {
-                            connection.current = "business";
-                            console.log(connection.current);
+                            connectionType.current = "business";
                             router.push({
                                 pathname: "../login",
                             });

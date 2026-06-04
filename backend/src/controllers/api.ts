@@ -1,6 +1,12 @@
 import { Request, Response } from "express";
 import nodemailer from "nodemailer";
-import { storeCode, verifyCode, userT } from "../database/pgHandler";
+import {
+    storeCode,
+    verifyCode,
+    addClientUser,
+    addBusinessUser,
+} from "../database/pgHandler";
+import jwt from "jsonwebtoken";
 
 export { sendEmailCode, sendCode };
 
@@ -19,8 +25,6 @@ function random6DigitCode(): string {
 async function sendEmailCode(req: Request, res: Response) {
     const DigitCode = random6DigitCode();
     const email = req.body.email;
-    const connection = req.body.connection;
-    console.log(connection);
 
     await storeCode(email, DigitCode);
 
@@ -31,21 +35,30 @@ async function sendEmailCode(req: Request, res: Response) {
         html: `<p> ${DigitCode} </p>`,
     });
 
-    if (connection?.current === "client") {
-        await userT(email, null);
-    } else {
-        await userT(null, email);
-    }
-
     return res.status(200).json({});
 }
 
 async function sendCode(req: Request, res: Response) {
-    const { email, verificationCode } = req.body;
+    const { userId, id, email, verificationCode, connectionType } = req.body;
 
     const success = await verifyCode(email, verificationCode);
 
     if (success) {
+        if (connectionType?.current === "client") {
+            const userId = await addClientUser(id, email);
+            console.log(userId);
+        } else {
+            const userId = await addBusinessUser(email);
+            console.log(userId);
+        }
+
+        const token = jwt.sign(
+            { userId: userId, email: email },
+            process.env.JWT_SECRET!,
+            { expiresIn: "120d" },
+        );
+        console.log(token);
+
         return res
             .status(200)
             .json({ success: true, message: "הקוד אומת בהצלחה" });

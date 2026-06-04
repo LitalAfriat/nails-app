@@ -17,7 +17,7 @@ export default function VerificationScreen() {
 
     const router = useRouter();
     const { email } = useLogin();
-    const { connection } = useLogin();
+    const { connectionType } = useLogin();
     const [code, setCode] = useState<string[]>(Array(OTP_LENGTH).fill(""));
     const [resendTimer, setResendTimer] = useState(RESEND_DELAY_SECONDS);
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -64,15 +64,18 @@ export default function VerificationScreen() {
             const res = await fetch("http://192.168.1.128:3000/sendCode", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ verificationCode, email }),
+                body: JSON.stringify({
+                    verificationCode,
+                    email,
+                    connectionType,
+                }),
             });
 
             if (!res.ok) {
                 throw new Error("שליחת קוד האימייל נכשלה");
-            }
-            if (connection.current === "client") {
+            } else if (connectionType.current === "client") {
                 router.push({ pathname: "../client" });
-            } else if (connection.current === "business") {
+            } else if (connectionType.current === "business") {
                 router.push({ pathname: "../businessOwner" });
             } else {
                 router.push({ pathname: "../index" });

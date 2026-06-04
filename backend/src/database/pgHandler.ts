@@ -8,7 +8,7 @@ export const pool = new Pool({
     password: process.env.DB_PASSWORD,
 });
 
-export { initDB, storeCode, verifyCode, userT };
+export { initDB, storeCode, verifyCode, addClientUser, addBusinessUser };
 
 async function initDB(): Promise<void> {
     const client = await pool.connect();
@@ -16,25 +16,8 @@ async function initDB(): Promise<void> {
         await client.query("SELECT 1");
         console.log("✅ Database connected successfully!");
 
-        await client.query(`
-            CREATE TABLE IF NOT EXISTS email_verification_codes (
-                id SERIAL PRIMARY KEY,
-                email VARCHAR(255) NOT NULL,
-                code VARCHAR(6) NOT NULL,
-                created_at TIMESTAMP DEFAULT NOW()
-            )
-        `);
-        console.log("✅ email_verification_codes table ready!");
-
-        await client.query(`
-            CREATE TABLE IF NOT EXISTS users (
-                id SERIAL PRIMARY KEY,
-                client VARCHAR(255),
-                business VARCHAR(255),
-                created_at TIMESTAMP DEFAULT NOW()
-            )
-        `);
-        console.log("✅ users table ready!");
+        await initTables();
+        console.log("✅ Tables are ready!");
     } catch (err) {
         console.error("❌ Database connection failed:", (err as Error).message);
         throw err;
@@ -42,7 +25,6 @@ async function initDB(): Promise<void> {
         client.release();
     }
 }
-
 async function storeCode(email: String, code: String) {
     // Delete any previous unused codes for this email
     await pool.query(`DELETE FROM email_verification_codes WHERE email = $1`, [
@@ -51,7 +33,7 @@ async function storeCode(email: String, code: String) {
 
     // Store the new code in the DB
     await pool.query(
-        `INSERT INTO email_verification_codes (email, code) VALUES ($1, $2)`,
+        `INSERT INTO email_verification_codes (email, code) VALUES ($1, $2) `,
         [email, code],
     );
 }
@@ -59,9 +41,9 @@ async function storeCode(email: String, code: String) {
 async function verifyCode(email: string, inputCode: string): Promise<boolean> {
     const result = await pool.query(
         `SELECT * FROM email_verification_codes
-     WHERE email = $1
-       AND code = $2
-     LIMIT 1`,
+        WHERE email = $1
+        AND code = $2
+        LIMIT 1`,
         [email, inputCode],
     );
 
@@ -72,10 +54,56 @@ async function verifyCode(email: string, inputCode: string): Promise<boolean> {
     return true;
 }
 
-async function userT(client: string | null, business: string | null) {
+async function addClientUser(userid: number, email: string) {
+    const result = await pool.query(
+        `INSERT INTO client (client) VALUES ($1) RETURNING id`,
+        [email],
+    );
+
+    const newId = result.rows[0].id;
+    console.log("New client ID:", newId);
+
+    return newId;
+}
+async function addBusinessUser(email: string): Promise<void> {
     // Store the new code in the DB
-    await pool.query(`INSERT INTO users (client, business) VALUES ($1, $2)`, [
-        client,
-        business,
+    await pool.query(`INSERT INTO business (business) VALUES ($1) LIMIT 1`, [
+        email,
     ]);
+    const result = await pool.query(`SELECT * FROM business`);
+
+    console.log("All business:", result.rowCount);
+}
+
+async function initTables(): Promise<void> {
+    const client = await pool.connect();
+    try {
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS email_verification_codes (
+                id SERIAL PRIMARY KEY,
+                email VARCHAR(255) NOT NULL,
+                code VARCHAR(6) NOT NULL,
+                created_at TIMESTAMP DEFAULT NOW()
+            )
+        `);
+
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS client (
+                id SERIAL PRIMARY KEY,
+                client VARCHAR(255),
+                created_at TIMESTAMP DEFAULT NOW()
+            )
+        `);
+
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS business (
+                id SERIAL PRIMARY KEY,
+                business VARCHAR(255),
+                created_at TIMESTAMP DEFAULT NOW()
+            )
+        `);
+    } finally {
+        // Fix: always release the client to prevent connection leak
+        client.release();
+    }
 }
