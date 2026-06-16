@@ -26,14 +26,12 @@ async function initDB(): Promise<void> {
     }
 }
 async function storeCode(email: String, code: String) {
-    // Delete any previous unused codes for this email
-    await pool.query(`DELETE FROM email_verification_codes WHERE email = $1`, [
-        email,
-    ]);
-
-    // Store the new code in the DB
     await pool.query(
-        `INSERT INTO email_verification_codes (email, code) VALUES ($1, $2) `,
+        `INSERT INTO email_verification_codes (email, code)
+        VALUES ($1, $2) 
+        ON CONFLICT (email)
+        DO UPDATE SET
+        code = EXCLUDED.code`,
         [email, code],
     );
 }
@@ -54,34 +52,34 @@ async function verifyCode(email: string, inputCode: string): Promise<boolean> {
     return true;
 }
 
-async function addClientUser(userid: number, email: string) {
-    const result = await pool.query(
-        `INSERT INTO client (client) VALUES ($1) RETURNING id`,
-        [email],
+async function addClientUser(id: string, email: string, token: string) {
+    await pool.query(
+        `INSERT INTO client (id, client, token) VALUES ($1, $2, $3)
+         ON CONFLICT (client)
+         DO UPDATE SET
+             token = EXCLUDED.token,
+             updated_on = NOW()`,
+        [id, email, token],
     );
-
-    const newId = result.rows[0].id;
-    console.log("New client ID:", newId);
-
-    return newId;
-}
-async function addBusinessUser(email: string): Promise<void> {
-    // Store the new code in the DB
-    await pool.query(`INSERT INTO business (business) VALUES ($1) LIMIT 1`, [
-        email,
-    ]);
-    const result = await pool.query(`SELECT * FROM business`);
-
-    console.log("All business:", result.rowCount);
 }
 
+async function addBusinessUser(id: string, email: string, token: string) {
+    await pool.query(
+        `INSERT INTO business (id, business, token) VALUES ($1, $2, $3)
+         ON CONFLICT (business)
+         DO UPDATE SET
+             token = EXCLUDED.token,
+             updated_on = NOW()`,
+        [id, email, token],
+    );
+}
 async function initTables(): Promise<void> {
     const client = await pool.connect();
     try {
         await client.query(`
             CREATE TABLE IF NOT EXISTS email_verification_codes (
                 id SERIAL PRIMARY KEY,
-                email VARCHAR(255) NOT NULL,
+                email VARCHAR(255) UNIQUE,
                 code VARCHAR(6) NOT NULL,
                 created_at TIMESTAMP DEFAULT NOW()
             )
@@ -89,17 +87,22 @@ async function initTables(): Promise<void> {
 
         await client.query(`
             CREATE TABLE IF NOT EXISTS client (
-                id SERIAL PRIMARY KEY,
-                client VARCHAR(255),
-                created_at TIMESTAMP DEFAULT NOW()
+                id TEXT NOT NULL UNIQUE,
+                client VARCHAR(255) UNIQUE,
+                token TEXT NOT NULL UNIQUE,
+                created_at TIMESTAMP DEFAULT NOW(),
+                updated_on TIMESTAMP DEFAULT NOW()
+                
             )
         `);
 
         await client.query(`
             CREATE TABLE IF NOT EXISTS business (
-                id SERIAL PRIMARY KEY,
-                business VARCHAR(255),
-                created_at TIMESTAMP DEFAULT NOW()
+                id TEXT NOT NULL UNIQUE,
+                business VARCHAR(255) UNIQUE,
+                token TEXT NOT NULL UNIQUE,
+                created_at TIMESTAMP DEFAULT NOW(),
+                updated_on TIMESTAMP DEFAULT NOW()
             )
         `);
     } finally {
