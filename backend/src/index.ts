@@ -14,3 +14,4 @@ app.listen(process.env.PORT, () => {
 (async () => {
     await initDB();
 })();
+// explain this page to ohad

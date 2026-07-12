@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useLogin } from "@/context/LoginContext";
+import { save } from "../../utils/SecureStore";
 
 export default function VerificationScreen() {
     const OTP_LENGTH = 6;
@@ -25,7 +26,7 @@ export default function VerificationScreen() {
     const inputs = useRef<(TextInput | null)[]>([]);
 
     useEffect(() => {
-        if (resendTimer === 0) return; // early return, no uninitialized `timer`
+        if (resendTimer === 0) return;
 
         const timer = setTimeout(() => {
             setResendTimer((prev) => prev - 1);
@@ -61,7 +62,7 @@ export default function VerificationScreen() {
         try {
             const verificationCode = code.join("");
 
-            const res = await fetch("http://192.168.1.128:3000/sendCode", {
+            const res = await fetch("http://192.168.1.128:3000/checkCode", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -73,10 +74,15 @@ export default function VerificationScreen() {
 
             if (!res.ok) {
                 throw new Error("שליחת קוד האימייל נכשלה");
-            } else if (connectionType.current === "client") {
-                router.push({ pathname: "../client" });
+            }
+            if (connectionType.current === "client") {
+                const data = await res.json();
+                const token = data.token;
+                console.log(token);
+                await save(token, email);
+                router.push({ pathname: "../(tabs_client)/client" });
             } else if (connectionType.current === "business") {
-                router.push({ pathname: "../businessOwner" });
+                router.push({ pathname: "../(tabs_business)/businessOwner" });
             } else {
                 router.push({ pathname: "../index" });
             }

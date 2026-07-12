@@ -1,4 +1,3 @@
-// screens/RoleSelectScreen.tsx
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
@@ -30,7 +29,7 @@ export default function RoleSelectScreen() {
                         onPress={() => {
                             connectionType.current = "client";
                             router.push({
-                                pathname: "../login",
+                                pathname: "../auth/login",
                             });
                         }}
                         activeOpacity={0.7}
@@ -61,7 +60,7 @@ export default function RoleSelectScreen() {
                         onPress={() => {
                             connectionType.current = "business";
                             router.push({
-                                pathname: "../login",
+                                pathname: "../auth/login",
                             });
                         }}
                         activeOpacity={0.7}

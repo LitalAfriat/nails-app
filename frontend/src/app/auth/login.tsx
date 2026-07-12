@@ -19,7 +19,7 @@ const NailsAuthScreen: React.FC = () => {
 
     const [errors, setErrors] = useState<string>("");
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const { connection } = useLogin();
+    const { connectionType } = useLogin();
 
     const validateForm = (): boolean => {
         let newErrors: string = "";
@@ -48,7 +48,7 @@ const NailsAuthScreen: React.FC = () => {
                     headers: {
                         "Content-Type": "application/json",
                     },
-                    body: JSON.stringify({ email, connection }),
+                    body: JSON.stringify({ email, connectionType }),
                 },
             );
 
@@ -60,9 +60,9 @@ const NailsAuthScreen: React.FC = () => {
             console.log("Success:", data);
 
             router.push({
-                pathname: "../verification-code",
+                pathname: "./verification-code",
             });
-            console.log(connection);
+            console.log(connectionType);
         } catch (err) {
             const error = err instanceof Error ? err.message : "שגיאה לא ידועה";
             alert(`${error} משהו השתבש. שגיאה:`);

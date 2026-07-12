@@ -15,6 +15,7 @@ const Search = forwardRef<TextInput, SearchProps>(
                     paddingTop: 100,
                     alignItems: "center",
                     backgroundColor: "#fdf2f8",
+                    flex: 1,
                 }}
             >
                 <View
@@ -57,5 +58,4 @@ const Search = forwardRef<TextInput, SearchProps>(
 );
 
 Search.displayName = "Search";
-
 export default Search;
