@@ -17,6 +17,7 @@ export {
     addClientUser,
     addBusinessUser,
     generateUID,
+    verifyToken,
 };
 
 async function initDB(): Promise<void> {
@@ -76,6 +77,22 @@ async function addClientUser(email: string) {
              updated_on = NOW()`,
         [uid, email, token],
     );
+    return token;
+}
+async function verifyToken(email: string, token: string): Promise<boolean> {
+    const result = await pool.query(
+        `SELECT * FROM clientUser
+        WHERE client = $1
+        AND token = $2
+        LIMIT 1`,
+        [email, token],
+    );
+
+    if (result.rows.length === 0) {
+        return false; // ❌
+    }
+    console.log(result);
+    return true;
 }
 
 async function addBusinessUser(email: string) {
@@ -90,6 +107,7 @@ async function addBusinessUser(email: string) {
              updated_on = NOW()`,
         [uid, email, token],
     );
+    return token;
 }
 
 async function initTables(): Promise<void> {
