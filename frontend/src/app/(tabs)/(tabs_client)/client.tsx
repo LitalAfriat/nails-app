@@ -14,18 +14,20 @@ const Search = forwardRef<TextInput, SearchProps>(
                 style={{
                     paddingTop: 100,
                     alignItems: "center",
-                    backgroundColor: "#fdf2f8",
+                    backgroundColor: "#ffffff",
                     flex: 1,
                 }}
             >
                 <View
                     style={{
                         width: "85%",
-                        shadowColor: "#727273",
+                        shadowColor: "#be185d",
+
                         shadowRadius: 4,
                         shadowOpacity: 0.3,
                         shadowOffset: { width: 0, height: 5 },
                         backgroundColor: "#ffffff",
+
                         flexDirection: "row",
                         alignItems: "center",
                         height: 48,

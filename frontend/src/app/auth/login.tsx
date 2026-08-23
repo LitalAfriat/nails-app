@@ -53,16 +53,19 @@ const NailsAuthScreen: React.FC = () => {
             );
 
             if (!response.ok) {
-                throw new Error("שליחת קוד אימייל נכשלה");
+                throw new Error("שליחת קוד האימייל נכשל");
             }
 
             const data = await response.json();
-            console.log("Success:", data);
 
-            router.push({
-                pathname: "./verification-code",
-            });
-            console.log(connectionType);
+            if (data.success) {
+                router.push({
+                    pathname: "../verification-code",
+                });
+            } else {
+                alert("קיימת שגיאה בשליחת המייל");
+                return;
+            }
         } catch (err) {
             const error = err instanceof Error ? err.message : "שגיאה לא ידועה";
             alert(`${error} משהו השתבש. שגיאה:`);

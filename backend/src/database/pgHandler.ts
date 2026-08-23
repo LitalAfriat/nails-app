@@ -57,8 +57,8 @@ async function verifyCode(email: string, inputCode: string): Promise<boolean> {
         [email, inputCode],
     );
 
-    if (result.rows.length === 0) {
-        return false; // ❌
+    if (!result?.rows.length) {
+        return false;
     }
 
     return true;
@@ -66,7 +66,6 @@ async function verifyCode(email: string, inputCode: string): Promise<boolean> {
 
 async function addClientUser(email: string) {
     const uid = generateUID();
-
     const token = await generateJWToken(email, uid);
 
     await pool.query(
@@ -79,19 +78,35 @@ async function addClientUser(email: string) {
     );
     return token;
 }
-async function verifyToken(email: string, token: string): Promise<boolean> {
-    const result = await pool.query(
-        `SELECT * FROM clientUser
+
+async function verifyToken(
+    email: string,
+    token: string,
+    connectionType: string,
+): Promise<boolean> {
+    let result;
+    if (connectionType === "client") {
+        result = await pool.query(
+            `SELECT * FROM clientUser
         WHERE client = $1
         AND token = $2
         LIMIT 1`,
-        [email, token],
-    );
-
-    if (result.rows.length === 0) {
-        return false; // ❌
+            [email, token],
+        );
+    } else if (connectionType === "business") {
+        result = await pool.query(
+            `SELECT * FROM businessUser
+        WHERE business = $1
+        AND token = $2
+        LIMIT 1`,
+            [email, token],
+        );
     }
-    console.log(result);
+
+    if (!result?.rows.length) {
+        return false;
+    }
+
     return true;
 }
 
@@ -113,6 +128,8 @@ async function addBusinessUser(email: string) {
 async function initTables(): Promise<void> {
     const client = await pool.connect();
     try {
+        await client.query(`CREATE SCHEMA IF NOT EXISTS public`);
+
         await client.query(`
             CREATE TABLE IF NOT EXISTS email_verification_codes (
                 id SERIAL PRIMARY KEY,
@@ -120,7 +137,6 @@ async function initTables(): Promise<void> {
                 code VARCHAR(6) NOT NULL,
                 created_at TIMESTAMP DEFAULT NOW(),
                 updated_on TIMESTAMP DEFAULT NOW()
-
             )
         `);
 
@@ -131,7 +147,6 @@ async function initTables(): Promise<void> {
                 token TEXT NOT NULL UNIQUE,
                 created_at TIMESTAMP DEFAULT NOW(),
                 updated_on TIMESTAMP DEFAULT NOW()
-                
             )
         `);
 
@@ -145,7 +160,6 @@ async function initTables(): Promise<void> {
             )
         `);
     } finally {
-        // Fix: always release the client to prevent connection leak
         client.release();
     }
 }

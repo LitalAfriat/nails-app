@@ -7,30 +7,48 @@ export default function Layout() {
     const router = useRouter();
 
     useEffect(() => {
-        load().then(async (test) => {
-            if (test.email && test.token) {
-                const token = test.token;
-                const email = test.email;
-
+        load().then(async (loginInfo) => {
+            if (
+                loginInfo.email &&
+                loginInfo.token &&
+                loginInfo.connectionType
+            ) {
+                const body = JSON.stringify({
+                    email: loginInfo.email,
+                    token: loginInfo.token,
+                    connectionType: loginInfo.connectionType,
+                });
                 const res = await fetch(
                     "http://192.168.1.128:3000/checkTokenEmail",
                     {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            email,
-                            token,
-                        }),
+                        body: body,
                     },
                 );
 
-                if (res.ok) {
-                    router.push({ pathname: "../(tabs_client)/client" });
+                const respond = await res.json();
+
+                if (res.ok && respond.success) {
+                    if (respond.connectionType === "client") {
+                        router.push({ pathname: "../(tabs_client)/client" });
+                    } else if (respond.connectionType === "business") {
+                        router.push({
+                            pathname: "../(tabs_business)/businessOwner",
+                        });
+                    } else {
+                        console.log("Wrong password.");
+                    }
+                } else {
+                    return;
                 }
             } else {
-                router.push({ pathname: "../index" });
+                router.push({
+                    pathname: "./app/index",
+                });
             }
         });
+        //TODO plz understand the router below.
     }, [router]);
 
     return (

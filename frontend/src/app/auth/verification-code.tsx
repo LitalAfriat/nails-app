@@ -10,15 +10,16 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useLogin } from "@/context/LoginContext";
-import { save } from "../../utils/SecureStore";
+import { save } from "../utils/SecureStore";
 
 export default function VerificationScreen() {
     const OTP_LENGTH = 6;
     const RESEND_DELAY_SECONDS = 30;
 
     const router = useRouter();
-    const { email } = useLogin();
-    const { connectionType } = useLogin();
+
+    const { email, connectionType } = useLogin();
+
     const [code, setCode] = useState<string[]>(Array(OTP_LENGTH).fill(""));
     const [resendTimer, setResendTimer] = useState(RESEND_DELAY_SECONDS);
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -35,6 +36,7 @@ export default function VerificationScreen() {
         return () => clearTimeout(timer);
     }, [resendTimer]);
 
+    //TODO try to combine handChange and handleDeletion
     const handleChange = (value: string, index: number) => {
         if (!/^\d?$/.test(value)) return;
 
@@ -73,18 +75,25 @@ export default function VerificationScreen() {
             });
 
             if (!res.ok) {
-                throw new Error("שליחת קוד האימייל נכשלה");
-            }
-            if (connectionType.current === "client") {
-                const data = await res.json();
-                const token = data.token;
-                console.log(token);
-                await save(token, email);
-                router.push({ pathname: "../(tabs_client)/client" });
-            } else if (connectionType.current === "business") {
-                router.push({ pathname: "../(tabs_business)/businessOwner" });
+                throw new Error("שליחת קוד האימייל נכשל");
             } else {
-                router.push({ pathname: "../index" });
+                if (connectionType.current === "client") {
+                    const data = await res.json();
+                    const token = data.token;
+
+                    await save(token, email, connectionType.current);
+                    router.push({ pathname: "../(tabs_client)/client" });
+                } else if (connectionType.current === "business") {
+                    const data = await res.json();
+                    const token = data.token;
+
+                    await save(token, email, connectionType.current);
+                    router.push({
+                        pathname: "../(tabs_business)/businessOwner",
+                    });
+                } else {
+                    router.push({ pathname: "../index" });
+                }
             }
         } catch (err) {
             const error = err instanceof Error ? err.message : "שגיאה לא ידועה";
@@ -133,6 +142,7 @@ export default function VerificationScreen() {
 
             <Text style={styles.title}>הזן קוד אימות</Text>
 
+            {/* TODO understnad this email if else*/}
             {email ? (
                 <Text style={styles.subtitle}>{email} קוד נשלח אל</Text>
             ) : null}
