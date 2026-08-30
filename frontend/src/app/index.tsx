@@ -1,12 +1,51 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useLogin } from "@/context/LoginContext";
+import { load } from "../utils/SecureStore";
 
 export default function RoleSelectScreen() {
     const router = useRouter();
     const { connectionType } = useLogin();
+
+    useEffect(() => {
+        load().then(async (loginInfo) => {
+            if (
+                loginInfo.email &&
+                loginInfo.token &&
+                loginInfo.connectionType
+            ) {
+                const body = JSON.stringify({
+                    email: loginInfo.email,
+                    token: loginInfo.token,
+                    connectionType: loginInfo.connectionType,
+                });
+                const res = await fetch(
+                    "http://192.168.1.128:3000/checkTokenEmail",
+                    {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: body,
+                    },
+                );
+
+                const respond = await res.json();
+
+                if (res.ok && respond.success) {
+                    if (respond.connectionType === "client") {
+                        router.push({ pathname: "../(tabs_client)/client" });
+                    } else if (respond.connectionType === "business") {
+                        router.push({
+                            pathname: "../(tabs_business)/businessOwner",
+                        });
+                    } else {
+                        console.log("Wrong password.");
+                    }
+                }
+            }
+        });
+    });
 
     return (
         <View style={styles.container}>

@@ -11,7 +11,6 @@ type ConnectionTypes = "client" | "business" | "";
 interface LoginContextType {
     email: string;
     setEmail: (email: string) => void;
-
     connectionType: React.RefObject<ConnectionTypes>;
 }
 

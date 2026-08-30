@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useLogin } from "@/context/LoginContext";
-import { save } from "../utils/SecureStore";
+import { save } from "../../utils/SecureStore";
 
 export default function VerificationScreen() {
     const OTP_LENGTH = 6;
@@ -36,24 +36,24 @@ export default function VerificationScreen() {
         return () => clearTimeout(timer);
     }, [resendTimer]);
 
-    //TODO try to combine handChange and handleDeletion
-    const handleChange = (value: string, index: number) => {
-        if (!/^\d?$/.test(value)) return;
-
-        const newCode = [...code];
-        newCode[index] = value;
-        setCode(newCode);
-
-        if (value && index < OTP_LENGTH - 1) {
-            inputs.current[index + 1]?.focus();
-        }
-    };
-
-    const handleDeletion = (
-        e: { nativeEvent: { key: string } },
+    const handleInput = (
         index: number,
+        value?: string,
+        e?: { nativeEvent: { key: string } },
     ) => {
-        if (e.nativeEvent.key === "Backspace" && !code[index] && index > 0) {
+        if (value !== undefined) {
+            if (!/^\d?$/.test(value)) return;
+
+            const newCode = [...code];
+            newCode[index] = value;
+            setCode(newCode);
+
+            if (value && index < OTP_LENGTH - 1) {
+                inputs.current[index + 1]?.focus();
+            }
+        }
+
+        if (e?.nativeEvent.key === "Backspace" && !code[index] && index > 0) {
             inputs.current[index - 1]?.focus();
         }
     };
@@ -89,7 +89,7 @@ export default function VerificationScreen() {
 
                     await save(token, email, connectionType.current);
                     router.push({
-                        pathname: "../(tabs_business)/businessOwner",
+                        pathname: "./businessQuestionnaire",
                     });
                 } else {
                     router.push({ pathname: "../index" });
@@ -142,10 +142,7 @@ export default function VerificationScreen() {
 
             <Text style={styles.title}>הזן קוד אימות</Text>
 
-            {/* TODO understnad this email if else*/}
-            {email ? (
-                <Text style={styles.subtitle}>{email} קוד נשלח אל</Text>
-            ) : null}
+            <Text style={styles.subtitle}>{email} קוד נשלח אל</Text>
 
             <View style={styles.inputContainer}>
                 {code.map((digit, index) => (
@@ -160,8 +157,8 @@ export default function VerificationScreen() {
                                 inputs.current[index] = ref;
                             }
                         }}
-                        onChangeText={(text) => handleChange(text, index)}
-                        onKeyPress={(e) => handleDeletion(e, index)}
+                        onChangeText={(value) => handleInput(index, value)}
+                        onKeyPress={(e) => handleInput(index, undefined, e)}
                         returnKeyType="send"
                     />
                 ))}

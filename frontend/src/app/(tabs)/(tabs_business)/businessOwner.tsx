@@ -3,7 +3,7 @@ import { Text, StyleSheet, View } from "react-native";
 
 const business = () => {
     return (
-        <View>
+        <View style={styles.container}>
             <Text style={styles.titleText}>hello business</Text>
         </View>
     );
@@ -12,6 +12,9 @@ const business = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        paddingTop: 100,
+        alignItems: "center",
+        backgroundColor: "#ffffff",
     },
     baseText: {
         fontFamily: "Cochin",

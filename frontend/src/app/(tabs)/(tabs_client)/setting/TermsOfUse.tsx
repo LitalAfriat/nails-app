@@ -1,5 +1,6 @@
 import React from "react";
-import { ScrollView, View, Text, StyleSheet, SafeAreaView } from "react-native";
+import { ScrollView, View, Text, StyleSheet } from "react-native";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 // ===== החלף/י את הפרטים הבאים בפרטים האמיתיים של האפליקציה שלך =====
 const APP_NAME: string = "[שם האפליקציה]";
@@ -79,7 +80,7 @@ const sections: Section[] = [
 
 const TermsAndPrivacyScreen: React.FC = () => {
     return (
-        <SafeAreaView style={styles.safeArea}>
+        <SafeAreaProvider style={styles.safeArea}>
             <ScrollView
                 contentContainerStyle={styles.container}
                 showsVerticalScrollIndicator={false}
@@ -103,7 +104,7 @@ const TermsAndPrivacyScreen: React.FC = () => {
                     הישראלי ועוד).
                 </Text>
             </ScrollView>
-        </SafeAreaView>
+        </SafeAreaProvider>
     );
 };
 

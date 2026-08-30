@@ -3,8 +3,9 @@ import { useRouter } from "expo-router";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
-import { remove, load } from "@/utils/SecureStore";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { remove } from "@/utils/SecureStore";
+import { useLogin } from "@/context/LoginContext";
+
 import {
     View,
     Text,
@@ -15,10 +16,15 @@ import {
     Pressable,
 } from "react-native";
 
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { load } from "../../../../utils/SecureStore";
+
 export default function SettingsScreen() {
     const router = useRouter();
 
     const [email, setEmail] = useState<string | null>(null);
+
+    const { logout } = useLogin();
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -30,21 +36,8 @@ export default function SettingsScreen() {
 
     const forceLogout = async () => {
         await remove();
-        setEmail("");
-
+        logout();
         router.replace("/");
-    };
-
-    const openWhatsApp = async () => {
-        const phoneNumber = "972544405452";
-        const message = "Hello! I need help with...";
-        const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-
-        try {
-            await Linking.openURL(url);
-        } catch (error) {
-            Alert.alert("שגיאה", "לא ניתן לפתוח את WhatsApp");
-        }
     };
 
     const HorizontalLine = ({
@@ -74,47 +67,6 @@ export default function SettingsScreen() {
             </View>
 
             <View style={styles.details}>
-                <TouchableOpacity
-                    style={styles.menuItem}
-                    onPress={openWhatsApp}
-                >
-                    <MaterialIcons
-                        name="arrow-back-ios"
-                        size={20}
-                        color="#858585"
-                    />
-
-                    <View style={styles.menuContent}>
-                        <Text style={styles.menuText}>עזרה ותמיכה</Text>
-                        <FontAwesome5
-                            name="whatsapp"
-                            size={24}
-                            color="#be185d"
-                        />
-                    </View>
-                </TouchableOpacity>
-                <HorizontalLine />
-
-                <Pressable
-                    style={styles.menuItem}
-                    onPress={() => router.push("./TermsOfUse")}
-                >
-                    <MaterialIcons
-                        name="arrow-back-ios"
-                        size={20}
-                        color="#858585"
-                    />
-                    <View style={styles.menuContent}>
-                        <Text style={styles.menuText}>
-                            תנאי שימוש ומדיניות פרטיות
-                        </Text>
-                        <Ionicons
-                            name="help-circle-outline"
-                            size={28}
-                            color="#be185d"
-                        />
-                    </View>
-                </Pressable>
                 <HorizontalLine />
                 <TouchableOpacity style={styles.menuItem} onPress={forceLogout}>
                     <MaterialIcons

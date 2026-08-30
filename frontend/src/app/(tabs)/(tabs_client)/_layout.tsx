@@ -19,18 +19,22 @@ export default function TabLayout() {
                 }}
             />
             <Tabs.Screen
+                name="queues"
+                options={{
+                    title: "פגישות",
+                    tabBarIcon: ({ color }) => (
+                        <FontAwesome size={28} name="calendar" color={color} />
+                    ),
+                }}
+            />
+
+            <Tabs.Screen
                 name="setting/Settings"
                 options={{
                     title: "הגדרות",
                     tabBarIcon: ({ color }) => (
                         <FontAwesome size={28} name="cog" color={color} />
                     ),
-                }}
-            />
-            <Tabs.Screen
-                name="setting/termsOfUse"
-                options={{
-                    href: null,
                 }}
             />
         </Tabs>

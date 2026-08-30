@@ -1,6 +1,6 @@
 import * as SecureStore from "expo-secure-store";
 
-export { save, load };
+export { save, load, remove };
 
 async function save(
     token: string,
@@ -22,4 +22,10 @@ async function load(): Promise<{
     let connectionType = await SecureStore.getItemAsync("3");
 
     return { token, email, connectionType };
+}
+
+async function remove(): Promise<void> {
+    await SecureStore.deleteItemAsync("1");
+    await SecureStore.deleteItemAsync("2");
+    await SecureStore.deleteItemAsync("3");
 }

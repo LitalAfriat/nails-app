@@ -60,7 +60,7 @@ const NailsAuthScreen: React.FC = () => {
 
             if (data.success) {
                 router.push({
-                    pathname: "../verification-code",
+                    pathname: "./verification-code",
                 });
             } else {
                 alert("קיימת שגיאה בשליחת המייל");
