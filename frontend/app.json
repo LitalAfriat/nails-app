@@ -8,7 +8,12 @@
     "scheme": "nailsapp",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "LSApplicationQueriesSchemes": [
+          "whatsapp"
+        ]
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -24,6 +29,13 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
+       [
+        "expo-secure-store",
+        {
+          "configureAndroidBackup": true,
+          "faceIDPermission": "Allow $(PRODUCT_NAME) to access your Face ID biometric data."
+        }
+      ],
       "expo-router",
       [
         "expo-splash-screen",
@@ -38,7 +50,8 @@
         }
       ],
       "expo-font",
-      "expo-web-browser"
+      "expo-web-browser",
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true

@@ -1,10 +1,10 @@
 import React from "react";
 import { Text, StyleSheet, View } from "react-native";
 
-const client = () => {
+const business = () => {
     return (
-        <View>
-            <Text style={styles.titleText}>hello clint</Text>
+        <View style={styles.container}>
+            <Text style={styles.titleText}>hello business</Text>
         </View>
     );
 };
@@ -12,6 +12,9 @@ const client = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        paddingTop: 100,
+        alignItems: "center",
+        backgroundColor: "#ffffff",
     },
     baseText: {
         fontFamily: "Cochin",
@@ -22,4 +25,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default client;
+export default business;

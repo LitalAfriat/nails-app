@@ -6,13 +6,12 @@ import React, {
     useRef,
 } from "react";
 
-type ConnectionType = "client" | "business" | "";
+type ConnectionTypes = "client" | "business" | "";
 
 interface LoginContextType {
     email: string;
     setEmail: (email: string) => void;
-
-    connection: React.RefObject<ConnectionType>;
+    connectionType: React.RefObject<ConnectionTypes>;
 }
 
 const LoginContext = createContext<LoginContextType | undefined>(undefined);
@@ -20,10 +19,10 @@ const LoginContext = createContext<LoginContextType | undefined>(undefined);
 export const LoginProvider = ({ children }: { children: ReactNode }) => {
     const [email, setEmail] = useState<string>("");
 
-    const connection = useRef<ConnectionType>("");
+    const connectionType = useRef<ConnectionTypes>("");
 
     return (
-        <LoginContext.Provider value={{ email, setEmail, connection }}>
+        <LoginContext.Provider value={{ email, setEmail, connectionType }}>
             {children}
         </LoginContext.Provider>
     );

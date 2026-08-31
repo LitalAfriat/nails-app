@@ -1,49 +1,71 @@
 import { Request, Response } from "express";
-import nodemailer from "nodemailer";
-import { storeCode, verifyCode } from "../database/pgHandler";
-
-export { sendEmailCode, sendCode };
-
-const transporter = nodemailer.createTransport({
-    service: process.env.EMAIL_SERVICE,
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-    },
-});
-
-function random6DigitCode(): string {
-    return (Math.floor(Math.random() * 900000) + 100000).toString();
-}
+import {
+    storeCode,
+    verifyCode,
+    addClientUser,
+    addBusinessUser,
+    verifyToken,
+} from "../database/pgHandler";
+import { sendVerificationEmail } from "../utils/nodemailer";
+export { sendEmailCode, checkCode, storeCode, checkTokenEmail };
 
 async function sendEmailCode(req: Request, res: Response) {
-    const DigitCode = random6DigitCode();
-    const email = req.body.email;
+    try {
+        const email = req.body.email;
+        await sendVerificationEmail(email);
 
-    await storeCode(email, DigitCode);
-
-    await transporter.sendMail({
-        from: process.env.EMAIL_USER,
-        to: req.body.email,
-        subject: "Nails App Email Verification Code.",
-        html: `<p> ${DigitCode} </p>`,
-    });
-
-    return res.status(200).json({});
+        return res.status(200).json({ success: true });
+    } catch (err) {
+        console.error("Something went wrong:", err);
+        return res.status(500).json({ success: false });
+    }
 }
 
-async function sendCode(req: Request, res: Response) {
-    const { email, verificationCode } = req.body;
+async function checkCode(req: Request, res: Response) {
+    try {
+        const { email, verificationCode, connectionType } = req.body;
+        const success = await verifyCode(email, verificationCode);
+        let token;
 
-    const success = await verifyCode(email, verificationCode);
+        if (success) {
+            if (connectionType?.current === "client") {
+                token = await addClientUser(email);
+            } else if (connectionType?.current === "business") {
+                token = await addBusinessUser(email);
+            } else {
+                return res
+                    .status(400)
+                    .json({ success: false, message: " קיימת שגיאה" });
+            }
+            return res
+                .status(200)
+                .json({ success: true, token, message: "הקוד אומת בהצלחה" });
+        } else {
+            return res
+                .status(400)
+                .json({ success: false, message: "קוד לא תקין או פג תוקף" });
+        }
+    } catch (err) {
+        console.error("Something went wrong:", err);
+        return res.status(500).json({ success: false });
+    }
+}
 
-    if (success) {
-        return res
-            .status(200)
-            .json({ success: true, message: "Code verified successfully" });
-    } else {
-        return res
-            .status(400)
-            .json({ success: false, message: "Invalid or expired code" });
+async function checkTokenEmail(req: Request, res: Response) {
+    try {
+        const { email, token, connectionType } = req.body;
+
+        const success = await verifyToken(email, token, connectionType);
+
+        if (success) {
+            return res.status(200).json({ success: true, connectionType });
+        } else {
+            return res
+                .status(400)
+                .json({ success: false, message: "משתמש לא קיים במערכת" });
+        }
+    } catch (err) {
+        console.error("Something went wrong:", err);
+        return res.status(500).json({ success: false });
     }
 }

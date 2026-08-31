@@ -19,6 +19,7 @@ const NailsAuthScreen: React.FC = () => {
 
     const [errors, setErrors] = useState<string>("");
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const { connectionType } = useLogin();
 
     const validateForm = (): boolean => {
         let newErrors: string = "";
@@ -47,20 +48,24 @@ const NailsAuthScreen: React.FC = () => {
                     headers: {
                         "Content-Type": "application/json",
                     },
-                    body: JSON.stringify({ email }),
+                    body: JSON.stringify({ email, connectionType }),
                 },
             );
 
             if (!response.ok) {
-                throw new Error("שליחת קוד אימייל נכשלה");
+                throw new Error("שליחת קוד האימייל נכשל");
             }
 
             const data = await response.json();
-            console.log("Success:", data);
 
-            router.push({
-                pathname: "../verification-code",
-            });
+            if (data.success) {
+                router.push({
+                    pathname: "./verification-code",
+                });
+            } else {
+                alert("קיימת שגיאה בשליחת המייל");
+                return;
+            }
         } catch (err) {
             const error = err instanceof Error ? err.message : "שגיאה לא ידועה";
             alert(`${error} משהו השתבש. שגיאה:`);

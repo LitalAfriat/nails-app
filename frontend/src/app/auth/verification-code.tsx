@@ -10,14 +10,16 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useLogin } from "@/context/LoginContext";
+import { save } from "../../utils/SecureStore";
 
 export default function VerificationScreen() {
     const OTP_LENGTH = 6;
     const RESEND_DELAY_SECONDS = 30;
 
     const router = useRouter();
-    const { email } = useLogin();
-    const { connection } = useLogin();
+
+    const { email, connectionType } = useLogin();
+
     const [code, setCode] = useState<string[]>(Array(OTP_LENGTH).fill(""));
     const [resendTimer, setResendTimer] = useState(RESEND_DELAY_SECONDS);
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -25,7 +27,7 @@ export default function VerificationScreen() {
     const inputs = useRef<(TextInput | null)[]>([]);
 
     useEffect(() => {
-        if (resendTimer === 0) return; // early return, no uninitialized `timer`
+        if (resendTimer === 0) return;
 
         const timer = setTimeout(() => {
             setResendTimer((prev) => prev - 1);
@@ -34,23 +36,24 @@ export default function VerificationScreen() {
         return () => clearTimeout(timer);
     }, [resendTimer]);
 
-    const handleChange = (value: string, index: number) => {
-        if (!/^\d?$/.test(value)) return;
-
-        const newCode = [...code];
-        newCode[index] = value;
-        setCode(newCode);
-
-        if (value && index < OTP_LENGTH - 1) {
-            inputs.current[index + 1]?.focus();
-        }
-    };
-
-    const handleDeletion = (
-        e: { nativeEvent: { key: string } },
+    const handleInput = (
         index: number,
+        value?: string,
+        e?: { nativeEvent: { key: string } },
     ) => {
-        if (e.nativeEvent.key === "Backspace" && !code[index] && index > 0) {
+        if (value !== undefined) {
+            if (!/^\d?$/.test(value)) return;
+
+            const newCode = [...code];
+            newCode[index] = value;
+            setCode(newCode);
+
+            if (value && index < OTP_LENGTH - 1) {
+                inputs.current[index + 1]?.focus();
+            }
+        }
+
+        if (e?.nativeEvent.key === "Backspace" && !code[index] && index > 0) {
             inputs.current[index - 1]?.focus();
         }
     };
@@ -61,21 +64,36 @@ export default function VerificationScreen() {
         try {
             const verificationCode = code.join("");
 
-            const res = await fetch("http://192.168.1.128:3000/sendCode", {
+            const res = await fetch("http://192.168.1.128:3000/checkCode", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ verificationCode, email }),
+                body: JSON.stringify({
+                    verificationCode,
+                    email,
+                    connectionType,
+                }),
             });
 
             if (!res.ok) {
-                throw new Error("שליחת קוד האימייל נכשלה");
-            }
-            if (connection.current === "client") {
-                router.push({ pathname: "../client" });
-            } else if (connection.current === "business") {
-                router.push({ pathname: "../businessOwner" });
+                throw new Error("שליחת קוד האימייל נכשל");
             } else {
-                router.push({ pathname: "../index" });
+                if (connectionType.current === "client") {
+                    const data = await res.json();
+                    const token = data.token;
+
+                    await save(token, email, connectionType.current);
+                    router.push({ pathname: "../(tabs_client)/client" });
+                } else if (connectionType.current === "business") {
+                    const data = await res.json();
+                    const token = data.token;
+
+                    await save(token, email, connectionType.current);
+                    router.push({
+                        pathname: "./businessQuestionnaire",
+                    });
+                } else {
+                    router.push({ pathname: "../index" });
+                }
             }
         } catch (err) {
             const error = err instanceof Error ? err.message : "שגיאה לא ידועה";
@@ -124,9 +142,7 @@ export default function VerificationScreen() {
 
             <Text style={styles.title}>הזן קוד אימות</Text>
 
-            {email ? (
-                <Text style={styles.subtitle}>{email} קוד נשלח אל</Text>
-            ) : null}
+            <Text style={styles.subtitle}>{email} קוד נשלח אל</Text>
 
             <View style={styles.inputContainer}>
                 {code.map((digit, index) => (
@@ -141,8 +157,8 @@ export default function VerificationScreen() {
                                 inputs.current[index] = ref;
                             }
                         }}
-                        onChangeText={(text) => handleChange(text, index)}
-                        onKeyPress={(e) => handleDeletion(e, index)}
+                        onChangeText={(value) => handleInput(index, value)}
+                        onKeyPress={(e) => handleInput(index, undefined, e)}
                         returnKeyType="send"
                     />
                 ))}

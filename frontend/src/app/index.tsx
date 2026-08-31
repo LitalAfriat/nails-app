@@ -1,13 +1,51 @@
-// screens/RoleSelectScreen.tsx
-import React from "react";
+import React, { useEffect } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useLogin } from "@/context/LoginContext";
+import { load } from "../utils/SecureStore";
 
 export default function RoleSelectScreen() {
     const router = useRouter();
-    const { connection } = useLogin();
+    const { connectionType } = useLogin();
+
+    useEffect(() => {
+        load().then(async (loginInfo) => {
+            if (
+                loginInfo.email &&
+                loginInfo.token &&
+                loginInfo.connectionType
+            ) {
+                const body = JSON.stringify({
+                    email: loginInfo.email,
+                    token: loginInfo.token,
+                    connectionType: loginInfo.connectionType,
+                });
+                const res = await fetch(
+                    "http://192.168.1.128:3000/checkTokenEmail",
+                    {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: body,
+                    },
+                );
+
+                const respond = await res.json();
+
+                if (res.ok && respond.success) {
+                    if (respond.connectionType === "client") {
+                        router.push({ pathname: "../(tabs_client)/client" });
+                    } else if (respond.connectionType === "business") {
+                        router.push({
+                            pathname: "../(tabs_business)/businessOwner",
+                        });
+                    } else {
+                        console.log("Wrong password.");
+                    }
+                }
+            }
+        });
+    });
 
     return (
         <View style={styles.container}>
@@ -28,9 +66,9 @@ export default function RoleSelectScreen() {
                     <TouchableOpacity
                         style={styles.card}
                         onPress={() => {
-                            connection.current = "client";
+                            connectionType.current = "client";
                             router.push({
-                                pathname: "../login",
+                                pathname: "../auth/login",
                             });
                         }}
                         activeOpacity={0.7}
@@ -38,13 +76,13 @@ export default function RoleSelectScreen() {
                         <View
                             style={[
                                 styles.iconBox,
-                                { backgroundColor: "#EBF4FF" },
+                                { backgroundColor: "#fff7eb" },
                             ]}
                         >
                             <Ionicons
                                 name="person-outline"
                                 size={26}
-                                color="#3B82F6"
+                                color="#6b3f05"
                             />
                         </View>
                         <View style={styles.cardText}>
@@ -59,9 +97,9 @@ export default function RoleSelectScreen() {
                     <TouchableOpacity
                         style={styles.card}
                         onPress={() => {
-                            connection.current = "business";
+                            connectionType.current = "business";
                             router.push({
-                                pathname: "../login",
+                                pathname: "../auth/login",
                             });
                         }}
                         activeOpacity={0.7}
@@ -75,7 +113,7 @@ export default function RoleSelectScreen() {
                             <Ionicons
                                 name="briefcase-outline"
                                 size={26}
-                                color="#22C55E"
+                                color="#1c7a6a"
                             />
                         </View>
                         <View style={styles.cardText}>
