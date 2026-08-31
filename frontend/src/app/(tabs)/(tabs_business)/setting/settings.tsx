@@ -24,8 +24,6 @@ export default function SettingsScreen() {
 
     const [email, setEmail] = useState<string | null>(null);
 
-    const { logout } = useLogin();
-
     useEffect(() => {
         const fetchUser = async () => {
             const test = await load();
@@ -36,7 +34,7 @@ export default function SettingsScreen() {
 
     const forceLogout = async () => {
         await remove();
-        logout();
+
         router.replace("/");
     };
 
